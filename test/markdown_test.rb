@@ -264,6 +264,11 @@ text
     html_equal "<p>This a stupid link: <a href=\"https://github.com/rtomayko/tilt/issues?milestone=1&state=open\">https://github.com/rtomayko/tilt/issues?milestone=1&amp;state=open</a></p>\n", markdown
   end
 
+  def test_embedded_nulls_not_included_in_email
+    markdown = render_with({:autolink => true}, "\u0000foo@example.com")
+    html_equal "<p>\u0000<a href=\"mailto:foo@example.com\">foo@example.com</a></p>\n", markdown
+  end
+
   def test_spaced_headers
     rd = render_with({:space_after_headers => true}, "#123 a header yes\n")
     assert rd !~ /<h1>/

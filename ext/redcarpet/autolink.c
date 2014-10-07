@@ -53,6 +53,8 @@ autolink_delim(uint8_t *data, size_t link_end, size_t max_rewind, size_t size)
 {
 	uint8_t cclose, copen = 0;
 	size_t i;
+	static const char END_PUNCT[] = "?!.,";
+	static const size_t END_PUNCT_SIZE = sizeof(END_PUNCT) - 1;
 
 	for (i = 0; i < link_end; ++i)
 		if (data[i] == '<') {
@@ -61,7 +63,7 @@ autolink_delim(uint8_t *data, size_t link_end, size_t max_rewind, size_t size)
 		}
 
 	while (link_end > 0) {
-		if (strchr("?!.,", data[link_end - 1]) != NULL)
+		if (memchr(END_PUNCT, data[link_end - 1], END_PUNCT_SIZE) != NULL)
 			link_end--;
 
 		else if (data[link_end - 1] == ';') {
@@ -136,12 +138,14 @@ static size_t
 check_domain(uint8_t *data, size_t size, int allow_short)
 {
 	size_t i, np = 0;
+	static const char DOM_CHARS[] = ".:";
+	static const size_t DOM_CHARS_SIZE = sizeof(DOM_CHARS) - 1;
 
 	if (!isalnum(data[0]))
 		return 0;
 
 	for (i = 1; i < size - 1; ++i) {
-		if (strchr(".:", data[i]) != NULL) np++;
+		if (memchr(DOM_CHARS, data[i], DOM_CHARS_SIZE) != NULL) np++;
 		else if (!isalnum(data[i]) && data[i] != '-') break;
 	}
 
@@ -205,6 +209,8 @@ sd_autolink__email(
 {
 	size_t link_end, rewind;
 	int nb = 0, np = 0;
+	static const char NAME_PUNCT[] = ".+-_";
+	static const size_t NAME_PUNCT_SIZE = sizeof(NAME_PUNCT) - 1;
 
 	for (rewind = 0; rewind < max_rewind; ++rewind) {
 		uint8_t c = data[-rewind - 1];
@@ -212,7 +218,7 @@ sd_autolink__email(
 		if (isalnum(c))
 			continue;
 
-		if (strchr(".+-_", c) != NULL)
+		if (memchr(NAME_PUNCT, c, NAME_PUNCT_SIZE) != NULL)
 			continue;
 
 		break;
