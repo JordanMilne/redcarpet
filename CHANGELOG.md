@@ -1,5 +1,14 @@
 # Changelog
 
+* Fix several issues with autolinking, including handling of embedded
+  NULs and making sure the renderer doesn't interpret parts of other
+  inlines as part of a link.
+
+  This is possibly security relevant since one could make the renderer
+  truncate to a point in the middle of an existing tag.
+
+  *Jordan Milne*
+
 * Add a `Safe` renderer to deal with users' input. The `escape_html`
   and `safe_links_only` options are turned on by default.
 
